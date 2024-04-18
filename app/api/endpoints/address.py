@@ -11,7 +11,7 @@ from app.utils.distance_util import DistanceUtil
 router = APIRouter()
 
 
-@router.post("/create/", response_model=Address, status_code=status.HTTP_201_CREATED)
+@router.post("/create/", response_model=AddressDB, status_code=status.HTTP_201_CREATED)
 async def create_address(address: Address, db: SessionDep):
     """Creates a new address record."""
     db_address = AddressDB(**address.dict())
@@ -21,13 +21,13 @@ async def create_address(address: Address, db: SessionDep):
     return db_address
 
 
-@router.get("/list/", response_model=List[Address])
+@router.get("/list/", response_model=List[AddressDB])
 async def read_addresses(db: SessionDep):
     """Returns all address records."""
     return db.query(AddressDB).all()
 
 
-@router.get("/get/{address_id}", response_model=Address)
+@router.get("/get/{address_id}", response_model=AddressDB)
 async def read_address(address_id: int, db: SessionDep):
     """Returns a specific address by its ID or raises HTTPException if not found."""
     address = db.get(AddressDB, address_id)
@@ -36,7 +36,7 @@ async def read_address(address_id: int, db: SessionDep):
     return address
 
 
-@router.put("/update/{address_id}", response_model=Address)
+@router.put("/update/{address_id}", response_model=AddressDB)
 async def update_address(address_id: int, update_data: Address, db: SessionDep):
     """Updates an existing address by ID."""
     address = db.get(AddressDB, address_id)
@@ -46,6 +46,7 @@ async def update_address(address_id: int, update_data: Address, db: SessionDep):
     for key, value in address_data.items():
         setattr(address, key, value)
     db.commit()
+    db.refresh(address)
     return address
 
 
@@ -60,7 +61,7 @@ async def delete_address(address_id: int, db: SessionDep):
     return {}
 
 
-@router.get("/search/", response_model=List[Address])
+@router.get("/search/", response_model=List[AddressDB])
 async def find_addresses_within_km(latitude: float, longitude: float, km: float, db: SessionDep):
     """Finds addresses within a specified distance from a given coordinate."""
     addresses = db.query(AddressDB).all()
