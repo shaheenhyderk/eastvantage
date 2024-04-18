@@ -47,7 +47,7 @@ async def update_address(address_id: int, update_data: Address, db: SessionDep):
 
 @router.delete("/delete/{address_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_address(address_id: int, db: SessionDep):
-    address = db.get(Address, address_id)
+    address = db.get(AddressDB, address_id)
     if not address:
         raise HTTPException(status_code=404, detail="Address not found")
     db.delete(address)
